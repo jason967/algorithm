@@ -5,7 +5,7 @@
 #Added
 
 *.vcxproj
-*.vcxproj.filter
+*.vcxproj.filters
 *.sln
 
 # User-specific files

@@ -1,9 +1,12 @@
 #include<cstdio>
 #include<algorithm>
+#include<vector>
+#define pii pair<int,int>
 using namespace std;
 
-int A[501],cnt[501];
-int N;
+vector<pii> v;
+
+int N,d[501];
 
 int main()
 {
@@ -12,17 +15,23 @@ int main()
 	{
 		int a, b;
 		scanf("%d %d", &a, &b);
-		A[a] = b;
+		v.push_back({ a,b });
 	}
-	for (int i = 0; i < 20; i++)
+	sort(v.begin(), v.end());
+	int len = v.size();
+	int ans = 1;
+	d[0] = 1;
+	for (int i = 1; i < len; i++)
 	{
-		printf("%d %d\n", i, A[i]);
+		d[i] = 1;
+		for (int j = 0; j < i; j++)
+		{
+			if (v[i].second > v[j].second && d[i] <= d[j])
+			{
+				d[i] = d[j] + 1;
+				if (ans < d[i]) ans = d[i];
+			}
+		}
 	}
-	printf("after\n");
-	sort(A, A + 20);
-	for (int i = 0; i < 20; i++)
-	{
-		printf("%d %d\n", i, A[i]);
-	}
-
+	printf("%d", N - ans);
 }

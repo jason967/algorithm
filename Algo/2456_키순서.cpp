@@ -4,44 +4,59 @@
 
 using namespace std;
 
+vector<int> In[501],Out[501];
+bool v[501];
 
-vector<int> adj[501];
+int N, M,ans, d[501];
 
-int N, M;
-
-bool vis[501];
-int d[501];
-bool isCycle;
-void go(int node)
+void dfsI(int node)
 {
-	d[node]++;
-	//printf("%d\n", node);
-	int len = adj[node].size();
-	for (int i = 0; i < len; i++)
+	int sz = In[node].size();
+	for (int i = 0; i <sz ; i++)
 	{
-		int next = adj[node][i];
-		if (vis[next]) continue;
-		vis[next] = true;
-		go(next);
+		int nx = In[node][i];
+		if (v[nx]) continue;
+		v[nx] = true;
+		d[nx]++;
+		dfsI(nx);
+	}
+}
+void dfsO(int node)
+{
+	int sz = Out[node].size();
+	for (int i = 0; i < sz; i++)
+	{
+		int nx = Out[node][i];
+		if (v[nx]) continue;
+		v[nx] = true;
+		d[nx]++;
+		dfsO(nx);
 	}
 }
 
-
 int main()
 {
-	scanf("%d %d", &N,&M);
+	scanf("%d %d", &N, &M);
 	for (int i = 0; i < M; i++)
 	{
-		int v, u;
-		scanf("%d %d", &v, &u);
-		adj[v].push_back(u);
+		int u, v;
+		scanf("%d %d", &u, &v);
+		In[u].push_back(v);
+		Out[v].push_back(u);
 	}
-	//go(4, 4);
 	for (int i = 1; i <= N; i++)
 	{
-		memset(vis, false, sizeof(vis));
-		go(i);
+		memset(v, false, sizeof(v));
+		dfsO(i);
 	}
-	for (int i = 0; i <= N; i++) printf("%d ", d[i]);
-	//printf("%d", d[0]);
+	for (int i = 1; i <= N; i++)
+	{
+		memset(v, false, sizeof(v));
+		dfsI(i);
+	}
+	for (int i = 1; i <= N; i++)
+	{
+		if(d[i]==(N-1)) ans++;
+	}
+	printf("%d", ans);
 }

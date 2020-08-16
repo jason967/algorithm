@@ -4,33 +4,21 @@
 
 using namespace std;
 
-vector<int> In[501],Out[501];
+vector<int>	adj[2][501];
 bool v[501];
 
 int N, M,ans, d[501];
 
-void dfsI(int node)
+void dfs(int node,int state)
 {
-	int sz = In[node].size();
+	int sz = adj[state][node].size();
 	for (int i = 0; i <sz ; i++)
 	{
-		int nx = In[node][i];
+		int nx = adj[state][node][i];
 		if (v[nx]) continue;
 		v[nx] = true;
 		d[nx]++;
-		dfsI(nx);
-	}
-}
-void dfsO(int node)
-{
-	int sz = Out[node].size();
-	for (int i = 0; i < sz; i++)
-	{
-		int nx = Out[node][i];
-		if (v[nx]) continue;
-		v[nx] = true;
-		d[nx]++;
-		dfsO(nx);
+		dfs(nx,state);
 	}
 }
 
@@ -41,18 +29,15 @@ int main()
 	{
 		int u, v;
 		scanf("%d %d", &u, &v);
-		In[u].push_back(v);
-		Out[v].push_back(u);
+		adj[0][u].push_back(v);
+		adj[1][v].push_back(u);
 	}
 	for (int i = 1; i <= N; i++)
 	{
 		memset(v, false, sizeof(v));
-		dfsO(i);
-	}
-	for (int i = 1; i <= N; i++)
-	{
+		dfs(i,0);
 		memset(v, false, sizeof(v));
-		dfsI(i);
+		dfs(i, 1);
 	}
 	for (int i = 1; i <= N; i++)
 	{

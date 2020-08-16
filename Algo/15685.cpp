@@ -1,6 +1,5 @@
 #include<cstdio>
 #include<cstring>
-#include<cmath>
 
 using namespace std;
 
@@ -9,11 +8,11 @@ struct coord
 	int x, y, d;
 };
 
-coord pos[1024];
-
 int dy[4] = { 0,-1,0,1 };
 int dx[4] = { 1,0,-1,0 };
+
 bool used[101][101];
+coord pos[1024];
 
 bool oob(int x, int y)
 {
@@ -22,19 +21,18 @@ bool oob(int x, int y)
 
 void curve(int x, int y, int d, int gen)
 {
-	int dir = d;
 	pos[0] = { x,y,-1 };
-	pos[1] = { x + dx[dir],y + dy[dir] ,dir };
+	pos[1] = { x + dx[d],y + dy[d] ,d };
 	for (int i = 1; i <= gen; i++)
 	{
-		int s = pow(2, i - 1);
-		int e = pow(2, i);
+		int s = (1 << (i - 1));
+		int e = (1 << i);
 		for (int j = s + 1; j <= e; j++)
 		{
 			pos[j] = { pos[j - 1].x + dx[(pos[e - j + 1].d + 1) % 4], pos[j - 1].y + dy[(pos[e - j + 1].d + 1) % 4], (pos[e - j + 1].d + 1) % 4 };
 		}
 	}
-	for (int i = 0; i <= pow(2, gen); i++)
+	for (int i = 0; i <= (1<<gen); i++)
 	{
 		if (oob(pos[i].x, pos[i].y)) continue;
 		used[pos[i].x][pos[i].y] = true;

@@ -69,7 +69,7 @@ int main()
 	scanf("%d %d", &N, &M);
 	for (int i = 0; i < N; i++) for (int j = 0; j < M; j++) scanf("%d", &A[i][j]);
 	int year = 0;
-	int ans = 0;
+	int ans = 1;
 	int com = 1;
 	for (int i = 0; i < N; i++)
 	{

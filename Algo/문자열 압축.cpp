@@ -11,6 +11,7 @@ int main()
 	string s;
 	cin >> s;
 	int len = s.length();
+	int ans = len;
 	for (int sz = 1; sz <= len / 2; sz++)
 	{
 		string res = "";
@@ -28,26 +29,18 @@ int main()
 			{
 				if (cnt == 1)
 				{
-
+					res += temp;
 				}
+				else res += (to_string(cnt) + temp);
+				temp = t;
+				cnt = 1;
 			}
-			if (i + sz > len || t != s.substr(i + sz, sz))
+			if (len / sz != 0)
 			{
-				if
+				res += s.substr((len / sz)*sz);
 			}
-			string t2 = s.substr(i + sz, sz);
-
-			i += sz;
+			if (ans > res.length()) ans = res.length();
 		}
 	}
-	int sz = 3;
-	for (int i = 0; i < len; i++)
-	{
-		cout << i << '\n';
-		string t1 = s.substr(i, sz);
-		string t2 = s.substr(i + sz, sz);
-		cout << t1 << '\n';
-		cout << t2 << '\n';
-		i += (sz+1);
-	}
+	
 }

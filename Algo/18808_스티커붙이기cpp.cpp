@@ -65,7 +65,6 @@ void solution()
 	}//µµÇü
 }
 
-
 int main()
 {
 	scanf("%d %d %d", &N, &M, &K);

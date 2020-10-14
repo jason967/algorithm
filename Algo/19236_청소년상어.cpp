@@ -1,150 +1,129 @@
 #include<cstdio>
 #include<algorithm>
+#include<cstring>
+
 using namespace std;
 
-struct info
-{
-	int y, x,dir,state;
-};
+struct info {
+	int y,x,dir, state;
+} fish[17];
+
+const int N = 4;
 
 int dy[] = { -1,-1,0,1,1,1,0,-1 };
 int dx[] = { 0,-1,-1,-1,0,1,1,1 };
 
+int sea[4][4],ans;
+
 bool oob(int y, int x)
 {
-	return y < 0 || y >= 4 || x < 0 || x >= 4;
+	return y < 0 || y >= N || x < 0 || x >= N;
 }
 
-info fish[17];
-int sea[4][4];
-int ans;
-
-void moveFish(info arr[17], int board[4][4])
+void fishMove()
 {
-	for (int i = 1; i <= 16; i++)
+	for (int fi = 1; fi <= 16; fi++)
 	{
-		if (arr[i].state == 0 || arr[i].state == 2) continue;
-		int fy = arr[i].y, fx = arr[i].x;
-		int fdir = arr[i].dir;
-		int nfy = fy + dy[fdir], nfx = fx + dx[fdir];
-		int target = board[nfy][nfx];
-		
-		if (!oob(nfy, nfx) && board[nfy][nfx] >= 0)
+		//죽은 물고기면 넘어감
+		if (fish[fi].state == 0) continue;
+		info &cur = fish[fi];
+		for (int i = 0; i < 8; i++)
 		{
-			if (arr[target].state == 2) continue;
-			swap(board[nfy][nfx], board[fy][fx]);
-			swap(arr[i].y, arr[target].y);
-			swap(arr[i].x, arr[target].x);
-			continue;
-		}
-		
-		for (int j = 1; j < 8; j++)
-		{
-			int ndir = (fdir + j) % 8;
-			nfy = fy + dy[ndir], nfx = fx + dx[ndir];
-			target = board[nfy][nfx];
-			if (!oob(nfy, nfx) && board[nfy][nfx] >= 0 && arr[target].state != 2)
+			int ndir = (cur.dir + i) % 8;
+			int ny = cur.y + dy[ndir],nx = cur.x + dx[ndir];
+
+			//옆이 범위를 벗어나거나 상어인 경우
+			if (oob(ny, nx) || sea[ny][nx] == -1) continue;
+
+			if (sea[ny][nx] == 0)
 			{
-				arr[i].dir = ndir;
-				swap(board[nfy][nfx], board[fy][fx]);
-				swap(arr[i].y, arr[target].y);
-				swap(arr[i].x, arr[target].x);
+				//이동 전 칸 0으로 교체
+				sea[cur.y][cur.x] = 0;
+				//이동 후 칸 물고기 번호로 교체
+				sea[ny][nx] = fi;
+				//물고기 최신화
+				cur = { ny,nx,ndir,1 };
+				break;
+			}
+			else
+			{
+				int target = sea[ny][nx];
+				//물고기 방향 최신화
+				cur.dir = ndir;
+				//바다의 물고기 위치 변경
+				swap(sea[ny][nx], sea[cur.y][cur.x]);
+				//두 물고기 변환
+				swap(fish[target].y, cur.y);
+				swap(fish[target].x, cur.x);
 				break;
 			}
 		}
-		
 	}
-	
 }
 
-void go(int y, int x,int sum)
+void go(int y, int x, int dir, int sum)
 {
-	
-	int sdir = 0, cur = 0;;
-	for (int i = 1; i <= 16; i++)
+	info tF[17];
+	int tS[4][4];
+	//물고기들 움직임
+	fishMove();
+	memcpy(tF, fish, sizeof(fish));
+	memcpy(tS, sea, sizeof(sea));
+	//움직인 물고기들, 상태 temp에 저장
+
+	for (int dist = 1; dist <= 4; dist++)
 	{
-		if (fish[i].state == 2)
-		{
-			y = fish[i].y, x = fish[i].x;
-			sdir = fish[i].dir;
-			cur = i;
-		}
-	}
-	//printf("cur: %d, y: %d, x: %d dir: %d\n", cur, y, x,sdir);
-	for (int i = 1; i <= 4; i++)
-	{
-		int ny = y + dy[sdir] * i;
-		int nx = x + dx[sdir] * i;
-		int copySea[4][4];
-		info copyFish[17];
-		memcpy(copyFish, fish, sizeof(fish));
-		memcpy(copySea, sea, sizeof(sea));
-		//물고기 이동
-		moveFish(fish, sea);
-		printf("fishmove\n");
-		for (int i = 0; i < 4; i++)
-		{
-			for (int j = 0; j < 4; j++) printf("%d ", sea[i][j]);
-			printf("\n");
-		}
-		printf("\n");
-		if (sea[ny][nx] == 0) continue;
+		int ny = y + dy[dir] * dist;
+		int nx = x + dx[dir] * dist;
+		//범위를 벗어나면 체크
 		if (oob(ny, nx))
 		{
-			printf(" (%d %d) temp: %d\n",ny,nx ,sum);
 			if (sum > ans) ans = sum;
 			return;
 		}
-		//선택된 물고기
+		//물고기가 죽어있는 경우 통과
+		if (sea[ny][nx] == 0) continue;
+
 		int target = sea[ny][nx];
-		//상어위치->물고기 죽은 상태인 0으로 교체
-		//sea[y][x] = 0;
-		//움직인 위치-> 상어위치
-		sea[ny][nx] = 0;//맵에 상어 배치
-		fish[cur].state = 0;
-		fish[target].state = 2;
-		//printf("len%d,(%d,%d), %d %d sum:%d\n",i,ny,nx, fish[cur].state, fish[target].state,sum+target);
-		go(ny, nx, sum + target);
-		memcpy(fish, copyFish, sizeof(fish));
-		memcpy(sea, copySea, sizeof(sea));
+		int ndir = fish[target].dir;
+
+		sea[y][x] = 0;
+		sea[ny][nx] = -1;
+		fish[target].state = 0;
+
+		go(ny, nx, ndir, sum+target);
+
+		//다시 상어가 움직이기 전으로 복귀(물고기들만 움직인 상태)
+		memcpy(fish, tF, sizeof(fish));
+		memcpy(sea, tS, sizeof(sea));
 	}
 }
 
 
-
-int total;
-
 int main()
 {
-	int idx = 1;
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < N; i++)
 	{
-		for (int j = 0; j < 4; j++)
+		for (int j = 0; j < N; j++)
 		{
-			int a, b;
-			scanf("%d %d", &a, &b);
-			fish[a] = { i,j,b-1,1 };
-			sea[i][j] = a;
+			int num, dir;
+			scanf("%d %d", &num, &dir);
+			sea[i][j] = num;
+			fish[num] = { i,j,dir - 1,1 };
 		}
 	}
+
+	//상어 등장
+	sea[0][0] = -1;
 	for (int i = 1; i <= 16; i++)
 	{
 		if (fish[i].y == 0 && fish[i].x == 0)
 		{
-			total = sea[fish[i].y][fish[i].x];
-			fish[i].state = 2;
-			sea[fish[i].y][fish[i].x] = 0;
+			//물고기 사망
+			fish[i].state = 0;
+			go(0, 0, fish[i].dir,i);
 			break;
 		}
 	}
-	printf("start\n");
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++) printf("%d ", sea[i][j]);
-		printf("\n");
-	}
-	printf("\n");
-	go(0, 0, total);
-	printf("ans: %d", ans);
+	printf("%d", ans);
 }
-

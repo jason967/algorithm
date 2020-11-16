@@ -6,17 +6,17 @@ using namespace std;
 int N;
 int width;
 int hIdx = 0;
-int A[101][101],base[101];
+int A[101][101],B[101];
 
-void addCement(int day)
+void setUp(int day)
 {
 	int hi = 0;
 	for (int i = 0; i < width; i++)
 	{
-		base[i] += A[day][i];
-		if (hi < base[i])
+		B[i] += A[day][i];
+		if (hi < B[i])
 		{
-			hi = base[i];
+			hi = B[i];
 			hIdx = i;
 		}
 	}
@@ -35,44 +35,40 @@ int main()
 			scanf("%d", &A[i][j]);
 			if (A[i][j] > heighest) {
 				heighest = A[i][j];
-				//처음 제일 높은 높이 초기화
 				hIdx = j;
 			}
 		}
 	}
 	
-	int cement = 0;
+	int sum = 0;
 	for (int t = 0; t < N; t++)
 	{	
-		addCement(t);
-		//movo to right
-		printf("time: %d\n", t);
+		setUp(t);
+		//오른쪽
+		
 		int curH = -1;
 		for (int i = 0; i < width; i++)
 		{
 			if (i == hIdx) break;
-			if (base[i] > curH) curH = base[i];
-			else if (base[i] < curH)
+			if (B[i] > curH) curH = B[i];
+			else if (B[i] < curH)
 			{
-				//printf("%d %d\n", i, curH - base[i]);
-				cement += (curH - base[i]);
-				base[i] = curH;
+				sum += (curH - B[i]);
+				B[i] = curH;
 			}
 		}
 		curH = -1;
-		printf("mid\n");
-		//move to left
+		//왼쪽
 		for (int i = width - 1; i > 0; i--)
 		{
 			if (i == hIdx) break;
-			if (base[i] > curH) curH = base[i];
-			else if (base[i] < curH)
+			if (B[i] > curH) curH = B[i];
+			else if (B[i] < curH)
 			{
-				//printf("%d %d\n", i, curH - base[i]);
-				cement += (curH - base[i]);
-				base[i] = curH;
+				sum += (curH - B[i]);
+				B[i] = curH;
 			}
 		}
 	}
-	printf("%d", cement);
+	printf("%d", sum);
 }

@@ -24,13 +24,7 @@ int main()
 	{
 		string s;
 		cin >> s;
-		if (s[0] >= '0'&&s[0] <= '9')
-		{
-			cout << V[stoi(s)] << '\n';
-		}
-		else
-		{
-			cout << m[s] << "\n";
-		}
+		if (s[0] >= '0'&&s[0] <= '9') cout << V[stoi(s)] << '\n';
+		else cout << m[s] << "\n";
 	}
 }

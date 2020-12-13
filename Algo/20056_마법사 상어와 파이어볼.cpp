@@ -1,41 +1,39 @@
-#include<cstdio>
-#include<queue>
+#include<cstdio>	
 #include<vector>
+#include<queue>
 
 using namespace std;
 
-int N, M, K,ans;
-
-int dy[] = { -1,-1,0,1,1,1,0,-1 };
-int dx[] = { 0,1,1,1,0,-1,-1,-1 };
-
-int all[] = { 0,2,4,6 };
-int none[] = { 1,3,5,7 };
-
 struct info {
-	int row,col,mass, speed,dir;
+	int y, x, mass, speed, d;
 };
 
 struct VInfo {
-	int mass, dir, speed;
+	int mass, speed, d;
 };
+
+int dy[] = { -1,-1,0,1,1,1,0,-1};
+int dx[] = { 0,1,1,1,0,-1,-1,-1};
+
+int dir[2][4] = { {1,3,5,7},{0,2,4,6} };
+
+int N, M, K,ans;
+
+queue<info> Q;
 
 bool check(vector<VInfo> V)
 {
-	bool isEven = V[0].dir % 2 == 0 ? true : false;
+	bool isEven = V[0].d %2==0 ? true : false;
 	for (int i = 1; i < V.size(); i++)
 	{
-		if ((V[i].dir % 2 == 0 && !isEven) || V[i].dir % 2 != 0 && isEven) return false;
+		if (isEven && V[i].d % 2 != 0) return false;
+		if (!isEven && V[i].d % 2 == 0) return false;
 	}
 	return true;
 }
 
-queue<info> Q;
-
 void simulation()
 {
-	
-	int temp = 0;
 	vector<VInfo> V[51][51];
 	int qsz = Q.size();
 	for (int i = 0; i < qsz; i++)
@@ -43,66 +41,61 @@ void simulation()
 		info cur = Q.front();
 		Q.pop();
 		int speed = cur.speed%N;
-		int ny = (cur.row + (dy[cur.dir] * speed)+N)%(N);
-		int nx = (cur.col + (dx[cur.dir] * speed)+N)%(N);
-		printf("%d %d\n", ny, nx);
-		V[ny][nx].push_back({ cur.mass,cur.dir,cur.speed });
+		int ny = ((cur.y + dy[cur.d] * speed) + N) % N;
+		int nx = ((cur.x + dx[cur.d] * speed) + N) % N;
+		V[ny][nx].push_back({ cur.mass,cur.speed,cur.d });
 	}
-	
-	for (int i = 1; i <= N; i++)
+
+	for (int i = 0; i < N; i++)
 	{
-		for (int j = 1; j <= N; j++)
+		for (int j = 0; j < N; j++)
 		{
-			if (V[i][j].size() == 1) temp += V[i][j][0].mass;
 			if (V[i][j].size() >= 2)
 			{
-				int sz = V[i][j].size();
-				bool isAll = check(V[i][j]);
-				int sumMass = 0;
-				int sumSpeed = 0;
-				for (int t = 0; t < sz; t++)
+				int VSz = V[i][j].size();
+				int sumM = 0;
+				int sumS = 0;
+				for (int sz = 0; sz < VSz; sz++)
 				{
-					sumMass+= V[i][j][t].mass;
-					sumSpeed += V[i][j][t].speed;
+					sumM += V[i][j][sz].mass;
+					sumS += V[i][j][sz].speed;
 				}
-
-				sumMass /= 5;
-				sumSpeed /= sz;
-				sumSpeed %= N;
-				if (sumMass == 0) continue;
-
-				for (int dir = 0; dir < 4; dir++)
+				sumS /= VSz;
+				sumM /= 5;
+				if (sumM == 0) continue;
+				bool ret = check(V[i][j]);
+				sumS %= N;				
+				for (int d = 0; d < 4; d++)
 				{
-					int ndir = 0;
-					if(isAll) ndir = all[dir];
-					else ndir = none[dir];
-					int ny = (i + (dy[ndir]*sumSpeed)+N)%(N);
-					int nx = (j + (dx[ndir]*sumSpeed)+N)%(N);
-					printf("->%d %d\n", ny, nx);
-					int debug = 1;
-
-					Q.push({ ny,nx,sumMass,sumSpeed,ndir });
-
-				}				
+					Q.push({ i,j,sumM,sumS,dir[ret][d]});				
+				}
+			}
+			else if(V[i][j].size()==1)
+			{
+				Q.push({ i,j,V[i][j][0].mass,V[i][j][0].speed,V[i][j][0].d });
 			}
 		}
 	}
-
-	printf("%d\n", temp);
 	
 }
 
-int main() {
+
+int main()
+{
 	scanf("%d %d %d", &N, &M, &K);
 	for (int i = 0; i < M; i++)
 	{
-		int r, c, m, s, d;
-		scanf("%d %d %d %d %d", &r, &c, &m, &s, &d);
-		Q.push({ r,c,m,s,d });
+		int y, x, m, s, d;
+		scanf("%d %d %d %d %d", &y, &x, &m, &s, &d);
+		Q.push({ y-1,x-1,m,s,d });
 	}
-	
-	simulation();
 
+	for(int i=0;i<K;i++) simulation();
 	
-	printf("%d", ans);
+	while (!Q.empty())
+	{
+		ans += Q.front().mass;
+		Q.pop();
+	}
+	printf("%d\n", ans);
 }

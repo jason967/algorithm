@@ -21,15 +21,15 @@ int N, M, K,ans;
 
 queue<info> Q;
 
-bool check(vector<VInfo> V)
+int check(vector<VInfo> V)
 {
 	bool isEven = V[0].d %2==0 ? true : false;
 	for (int i = 1; i < V.size(); i++)
 	{
-		if (isEven && V[i].d % 2 != 0) return false;
-		if (!isEven && V[i].d % 2 == 0) return false;
+		if (isEven && V[i].d % 2 != 0) return 0;
+		if (!isEven && V[i].d % 2 == 0) return 0;
 	}
-	return true;
+	return 1;
 }
 
 void simulation()
@@ -41,8 +41,8 @@ void simulation()
 		info cur = Q.front();
 		Q.pop();
 		int speed = cur.speed%N;
-		int ny = ((cur.y + dy[cur.d] * speed) + N) % N;
-		int nx = ((cur.x + dx[cur.d] * speed) + N) % N;
+		int ny = (cur.y + (dy[cur.d] * speed) + N) % N;
+		int nx = (cur.x + (dx[cur.d] * speed) + N) % N;
 		V[ny][nx].push_back({ cur.mass,cur.speed,cur.d });
 	}
 
@@ -53,8 +53,7 @@ void simulation()
 			if (V[i][j].size() >= 2)
 			{
 				int VSz = V[i][j].size();
-				int sumM = 0;
-				int sumS = 0;
+				int sumM = 0, sumS = 0;
 				for (int sz = 0; sz < VSz; sz++)
 				{
 					sumM += V[i][j][sz].mass;
@@ -63,8 +62,7 @@ void simulation()
 				sumS /= VSz;
 				sumM /= 5;
 				if (sumM == 0) continue;
-				bool ret = check(V[i][j]);
-				sumS %= N;				
+				int ret = check(V[i][j]);			
 				for (int d = 0; d < 4; d++)
 				{
 					Q.push({ i,j,sumM,sumS,dir[ret][d]});				

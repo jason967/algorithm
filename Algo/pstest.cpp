@@ -1,27 +1,69 @@
 #include<cstdio>
-#include<stack>
+#include<algorithm>
 
 using namespace std;
 
-int T, N, A[301];
+int T, A[3];
 
 int main()
 {
-	freopen("Text.txt", "r", stdin);
 	scanf("%d", &T);
 	for (int tc = 0; tc < T; tc++)
 	{
-		scanf("%d", &N);
-		for (int i = 0; i < N; i++) scanf("%d", &A[i]);
-		for (int i = 0; i < N / 2; i++)
+		for (int i = 0; i < 3; i++) scanf("%d", &A[i]);
+		int sum = 0;
+		bool isAns = true;
+		while (isAns)
 		{
-			printf("%d %d ", A[i], A[N - 1 - i]);
+			for (int i = 0; i < 3; i++)
+			{
+				if (A[i] == 1) continue;
+				A[i] -= 1;
+				sum++;
+			}
+			if (sum % 7 == 6)
+			{
+				if (A[0] == 1 && A[1] == 1 && A[2] == 1)
+				{
+					printf("yes\n");
+					isAns = false;
+					break;
+				}
+				else
+				{
+					bool isWrong = false;
+					for (int i = 0; i < 3; i++)
+					{
+						if (A[i] == 1)
+						{
+							isWrong = true;
+							isAns = false;
+							break;
+						}
+					}
+					if (isWrong)
+					{
+						printf("no\n");
+						isAns = false;
+						break;
+					}
+					else
+					{
+						for (int i = 0; i < 3; i++)
+						{
+							A[i]--;
+						}
+					}
+				}
+			}
+			else
+			{
+				if (A[0] == 1 && A[1] == 1 && A[2] == 1)
+				{
+					printf("no\n");
+					break;
+				}
+			}
 		}
-		if (N % 2 != 0)
-		{
-			printf("%d", A[N / 2]);
-		}
-		printf("\n");
 	}
-
 }
